@@ -142,3 +142,8 @@ echo "192.168.33.123  ssh-root-ca.example.com" >> /etc/hosts
 ssh root@ssh-root-ca.example.com
 ```
 7. [x] Verify the trust
+
+8. Sign the Sub CA Certificate (after creation on the Sub CA Server)
+```
+```
+8. [x]
