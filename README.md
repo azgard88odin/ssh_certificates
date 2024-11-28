@@ -18,11 +18,12 @@ ssh-keygen -s <PRIVATE_KEY> -I <CERTIFICATE_IDENTITY> -h -n <HOST_NAME> -V +<VAL
 ssh-keygen -s <PRIVATE_KEY> -I <CERTIFICATE_IDENTITY> -n <USER_NAME> -V <VALIDITY_PERIOD> <USER_PUB_KEY_TO_SIGN>
 ```
 *EXAMPLES:*
-`# Create a 4096-bit RSA Key Pair with an Empty Password called 'ssh-root-ca'
-# This creates: ssh-root-ca & ssh-root-ca.pub
+```
+//Create a 4096-bit RSA Key Pair with an Empty Password called 'ssh-root-ca'
+//This creates: ssh-root-ca & ssh-root-ca.pub
 ssh-keygen -t rsa -b 4096 -f ./ssh-root-ca -N ''
-# Sign the ssh-sub-ca Host public key with the ssh-root-ca private key that is valid for 30 weeks
-# The -I is the identity that will be shown on the ssh logs when used to sign in
-# The -h is to signify a host certificate -n is the host's name`
-
+//Sign the ssh-sub-ca Host public key with the ssh-root-ca private key that is valid for 30 weeks
+//The -I is the identity that will be shown on the ssh logs when used to sign in
+//The -h is to signify a host certificate -n is the host's name
+```
 In the **/etc/ssh/sshd_config** 
