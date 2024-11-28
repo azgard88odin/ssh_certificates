@@ -1,7 +1,7 @@
 # ssh_certificates
 Implementation of SSH certificates like x509 hierarchy (multi-tier)
----
-## Introduction
+
+### Introduction
 The following is to explain, in the simplest way possible, how to implement a multi-tier SSH certificate hierarchy.
 This mini-project is what helped me to understand how certificates and a chain-of-trust works.
 I hope that this helps others to not only understand PKI fundamentals a bit better, but also improve their overall security.
