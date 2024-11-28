@@ -107,20 +107,20 @@ The following will show the steps that need to taken in order for the chain of t
 --
 
 ### Certificate Authorities
-Generate 4096-bit RSA Key Pair as the root user. You can create these in the **/root/.ssh** directory. 
+1. Generate 4096-bit RSA Key Pair as the root user. You can create these in the **/root/.ssh** directory. 
 - Creates: root-ca-key(privatekey) & root-ca-key.pub(publickey)
 ```
 ssh-keygen -t rsa -b 4096 -f ./root-ca-key -N ''
 ```
 1. [x] Generate Key Pair
 
-Create a self-signed Root Certificate valid for 1 year. Then copy over the key files and certificate to the /etc/ssh directory.
+2. Create a self-signed Root Certificate valid for 1 year. Then copy over the key files and certificate to the /etc/ssh directory.
 ```
 ssh-keygen -s root-ca-key -I ssh-root-ca -h -n ssh-root-ca.example.com -V +52w root-ca-key.pub
 ```
 2. [x] Create Self-Signed Root Certificate
 
-Change directory into the /etc/ssh directory, then execute the following.
+3-4. Change directory into the /etc/ssh directory, then execute the following.
 ```
 echo "HostKey /etc/ssh/root-ca-key" >> ./sshd_config
 echo "HostCertificate /etc/ssh/root-ca-key-cert.pub" >> ./sshd_config
@@ -128,7 +128,7 @@ echo "HostCertificate /etc/ssh/root-ca-key-cert.pub" >> ./sshd_config
 3. [x] Establish Root Private Key as HostKey
 4. [x] Establish Root Certificate as HostCertificate
 
-The following will create the chain of authority in one command. Then add the edit needed to the /etc/hosts file
+5-6. The following will create the chain of authority in one command. Then add the edit needed to the /etc/hosts file
 ```
 echo -n "@cert-authority ssh-root-ca.example.com " >> ./ssh_known_hosts && cat root-ca-key.pub >> ssh_known_hosts
 echo "192.168.33.123  ssh-root-ca.example.com" >> /etc/hosts
@@ -136,7 +136,7 @@ echo "192.168.33.123  ssh-root-ca.example.com" >> /etc/hosts
 5. [x] Establish Chain of Authority
 6. [x] Edit /etc/hosts
 
-Attempt a connection into the root server. If the trust is established, no fingerprint warning will appear and it will go straight to asking the password.
+7. Attempt a connection into the root server. If the trust is established, no fingerprint warning will appear and it will go straight to asking the password.
 - Using the IP will not verify the host as the authority is setup for the hostname of the host server
 ```
 ssh root@ssh-root-ca.example.com
