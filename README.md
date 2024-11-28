@@ -40,5 +40,5 @@ ssh-keygen -s sub-ca-key -I std_user@exampleclient.com -n std_user -V +10w user-
 
 ### Important Configurations
 In the **/etc/ssh/sshd_config**:
-`HostCertificate`
+> HostCertificate
 ---
