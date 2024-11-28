@@ -10,6 +10,9 @@ This project was completed using headless AntiX core Virtual Machines, but the p
 
 ## Important Information
 Ensure ssh is installed on your server.
+Do NOT add public keys to the authorized_keys file (this will force Public Key Authentication instead of certificates)
+Do NOT say 'Yes' to fingerprints unless transferring files (remove the fingerprints setup)
+Once certificates are setup, deactivate password authentication in the sshd_config
 
 ### Common Commands (Syntax & Examples)
 *SYNTAX:*
@@ -37,5 +40,5 @@ ssh-keygen -s sub-ca-key -I std_user@exampleclient.com -n std_user -V +10w user-
 
 ### Important Configurations
 In the **/etc/ssh/sshd_config**:
-
+`HostCertificate'
 ---
