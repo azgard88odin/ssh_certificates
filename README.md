@@ -77,11 +77,12 @@ The following will show the steps that need to taken in order for the chain of t
 2. Create a self-signed Root Certificate
 3. Establish Root Private Key as the HostKey
 4. Establish Root Certificate as the HostCertificate
-5. Establish the Chain of Authority 
-6. Verify the Trust
-7. Sign Sub CA Certificate
-8. Pass on chain of authority
-9. Go Offline
+5. Establish the Chain of Authority
+6. Edit /etc/hosts
+7. Verify the Trust
+8. Sign Sub CA Certificate
+9. Pass on chain of authority
+10. Go Offline
 
 #### Sub CA
 1. Generate Key Pair
@@ -90,13 +91,54 @@ The following will show the steps that need to taken in order for the chain of t
 4. Establish Sub CA Certificate as the HostCertificate
 5. Trust User Certificates Signed by Sub CA
 6. Append the Chain of Authority
-7. Verify the Trust
-8. Sign User Certificate
-9. Pass on the chain of authority
+7. Edit /etc/hosts
+8. Verify the Trust
+9. Sign User Certificate
+10. Pass on the chain of authority
 
 #### User Certificate
 1. Generate Key Pair
 2. Get Sub CA to create a signed User Certificate
 3. Copy over the chain of authority
 4. Create user connection config
-5. Test the connection to the server
+5. Edit /etc/hosts
+6. Test the connection to the server
+
+--
+
+### Certificate Authorities
+Generate 4096-bit RSA Key Pair as the root user. You can create these in the **/root/.ssh** directory. 
+- Creates: root-ca-key(privatekey) & root-ca-key.pub(publickey)
+```
+ssh-keygen -t rsa -b 4096 -f ./root-ca-key -N ''
+```
+1. [x] Generate Key Pair
+
+Create a self-signed Root Certificate valid for 1 year. Then copy over the key files and certificate to the /etc/ssh directory.
+```
+ssh-keygen -s root-ca-key -I ssh-root-ca -h -n ssh-root-ca.example.com -V +52w root-ca-key.pub
+```
+2. [x] Create Self-Signed Root Certificate
+
+Change directory into the /etc/ssh directory, then execute the following.
+```
+echo "HostKey /etc/ssh/root-ca-key" >> ./sshd_config
+echo "HostCertificate /etc/ssh/root-ca-key-cert.pub" >> ./sshd_config
+```
+3. [x] Establish Root Private Key as HostKey
+4. [x] Establish Root Certificate as HostCertificate
+
+The following will create the chain of authority in one command. Then add the edit needed to the /etc/hosts file
+```
+echo -n "@cert-authority ssh-root-ca.example.com " >> ./ssh_known_hosts && cat root-ca-key.pub >> ssh_known_hosts
+echo "192.168.33.123  ssh-root-ca.example.com" >> /etc/hosts
+```
+5. [x] Establish Chain of Authority
+6. [x] Edit /etc/hosts
+
+Attempt a connection into the root server. If the trust is established, no fingerprint warning will appear and it will go straight to asking the password.
+- Using the IP will not verify the host as the authority is setup for the hostname of the host server
+```
+ssh root@ssh-root-ca.example.com
+```
+7. [x] Verify the trust
