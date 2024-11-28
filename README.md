@@ -58,6 +58,6 @@ In **/etc/ssh/ssh_known_hosts**:
 This file must contain the certificate authority public keys including the principles that are authorized by those authorities.
 The line starts with "@cert-authority" string, followed by the principle signed by this authority. 
 Example: "@cert-authority ssh-root-ca.example.com,ssh-sub-ca.example.com ssh-rsa..."
-This denotes that the following public key is that of a ==host certificate/certificate authority== who has ==signed== the certificate of the following *host(s)*  
+This denotes that the following public key is that of a **host certificate/certificate authority** who has **signed** the certificate of the following **host(s)**  
 
 ---
