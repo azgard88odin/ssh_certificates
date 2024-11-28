@@ -55,7 +55,7 @@ This is the private key that will decrypt any data sent to it via the client's e
 This option expects a path to the public key of the signing authority. For example, if the user has a certificate signed by the sub-ca-key private key, this option would point to the sub-ca-key.pub public key. The sub-ca-key is a trusted authority and the user-key-cert.pub carries its signature. Therefore, the user has been authorized by the sub-ca-key
 
 In **/etc/ssh/ssh_known_hosts**:
-This file must contain the certificate authority public keys including the principles that are authorized by those authorities.
+- This file must contain the certificate authority public keys including the principles that are authorized by those authorities.
 The line starts with "@cert-authority" string, followed by the principle signed by this authority. 
 Example: "@cert-authority ssh-root-ca.example.com,ssh-sub-ca.example.com ssh-rsa..."
 This denotes that the following public key is that of a **host certificate/certificate authority** who has **signed** the certificate of the following **host(s)**  
