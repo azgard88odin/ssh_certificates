@@ -70,7 +70,7 @@ What we are going to do in the following exercises is to establish an 'Anchor of
 ** This is only in name and there is nothing else that needs to be done outside of the following steps to make an 'Issuing CA' a 'Subordinate' or vice versa **
 
 The following will show the steps that need to taken in order for the chain of trust to work for each level of a 2 tier heirarchy.
-That is: *Root CA -> Issuing CA ->> Authorized User Certificate(s)* 
+- That is: *Root CA -> Issuing CA ->> Authorized User Certificate(s)* 
 
 #### Root CA
 1. Generate Key Pair
