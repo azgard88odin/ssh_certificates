@@ -7,7 +7,7 @@ This mini-project is what helped me to understand how certificates and a chain-o
 I hope that this helps others to not only understand PKI fundamentals a bit better, but also improve their overall security.
 This project was completed using headless AntiX core Virtual Machines, but the principles will apply to all distributions. 
 
----
+
 ## Important Information
 Ensure ssh is installed on your server.
 
