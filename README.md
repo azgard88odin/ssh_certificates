@@ -83,13 +83,13 @@ ssh-keygen -Lf user-key-cert.pub
 
 ### Important Configurations
 In **/etc/ssh/sshd_config**:
-- *HostCertificate*
+- *HostCertificate*<br/>
 This option expects a path to the host machine's certificate. This is the certificate that will be presented to any client connecting to the server.
 When connecting to a normal server for the first time, we are presented with a fingerprint. When a HostCertificate is set up, the fingerprint shown is the same Public Key seen when viewing the certificate with *ssh-keygen -Lf ssh-sub-ca-cert.pub*
-- *HostKey*
+- *HostKey*<br/>
 This option expects a path to the host machine's private key. The private key here cannot, to my knowledge, have password protection.
 This is the private key that will decrypt any data sent to it via the client's encrypted tunnel.
-- *TrustedUserCAKeys*
+- *TrustedUserCAKeys*<br/>
 This option expects a path to the public key of the signing authority. For example, if the user has a certificate signed by the sub-ca-key private key, this option would point to the sub-ca-key.pub public key. The sub-ca-key is a trusted authority and the user-key-cert.pub carries its signature. Therefore, the user has been authorized by the sub-ca-key
 
 In **/etc/ssh/ssh_known_hosts**:
