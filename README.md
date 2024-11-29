@@ -143,7 +143,30 @@ ssh root@ssh-root-ca.example.com
 ```
 7. [x] Verify the trust
 
-8. Sign the Sub CA Certificate (after creation on the Sub CA Server)
+8. Sign the Sub CA Certificate (after creation on the Sub CA Server). Before you commit to this step, you must first step up the Sub CA Virtual Machine, and as the root user, create the key pair and send over the public key to the Root CA for this step.
 ```
+ssh-keygen -s root-ca-key -I ssh-sub-ca -h -n ssh-sub-ca.example.com -V +30w sub-ca-key.pub
 ```
-8. [x]
+8. [x] Sign the Sub CA Certificate
+
+9. Pass on the chain of authority with the signed certificate.
+- *Please replace 192.168.123.123 with the corresponding IP address of your server*
+```
+//Using secure copy to the Sub CA machine - You will have to clean out the fingerprint from the known_hosts file after the transfer
+scp sub-ca-key-cert.pub ssh_known_hosts 192.168.123.123:/shared_folder/
+
+//If you didn't scp the files from the Sub CA to the Root CA, you can download them with curl - as described earlier in this document
+curl -O 192.168.123.123/sub-ca-key-cert.pub
+
+//Send the files via curl - as described earlier in this document
+curl -F "file=@./sub-ca-key-cert.pub" -F "file=@./ssh_known_hosts" 192.168.123.123
+```
+9. [x] Pass on the chain of authority
+
+10. Shutdown the Root CA server.
+```
+shutdown now
+```
+10. [x] Go Offline
+
+**Well Done!** You just successfully created a Root CA and established the Anchor of Trust.
