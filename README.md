@@ -20,7 +20,7 @@ This project was completed using headless AntiX core Virtual Machines, but the p
 
 ### File/Certificate/Key Transfer
 During this exercise you will at times need to transfer files to and from certain servers. There are many ways to approach this problem. I will first share with you the easiest solution that avoids having to approve the server fingerprints during an ssh/scp connection
-- Web Server (Private Network)\n
+- Web Server (Private Network)<br/>
 I would **NOT** advise this method to be used in a **real life situation**, but since the purpose of this exercise is to understand how to set up a multi-tier PKI with SSH Certificates, the easiest way is to have a Web Server like Apache2 in a separate VM and on each server which you purge after you are done transferring files.
 ```
 //Install Apache2 on a Debian based server
@@ -44,13 +44,13 @@ shred -n 20 -u file1 file2 file3 file4
 //The following command is on a Debian based server
 apt purge apache2
 ```
-- Web Server (Mutual TLS)
+- Web Server (Mutual TLS)<br/>
 To practice with a more secure environment, you can setup a Mutual TLS relationship for your Apache2 server. I will probably write another guide on how to do this as this is out-of-scope for the current exercise. But essentially, this means that only the Hosts with an authorized certificate will be able to connect to your Web Server and download or upload the files in question.   
-- SSH/SCP Transfer (Not Advised)
+- SSH/SCP Transfer (Not Advised)<br/>
 You can go the traditional route of quickly transferring files with SCP or copying the file contents to your clipboard and then SSHing into the other server and copying over the file contents. The only issue is that defeats the purpose of setting up certificates (avoiding the TOFU issue). This also means to verify that your certificate authentication is working, you will need to remove the fingerprints approved in the 'known_hosts' file.
-- Shared Folder
+- Shared Folder<br/>
 Since this exercise uses VMs you can setup a shared network folder between all the VMs as a hub for all the files needed during the process.
-- Physical Transfer
+- Physical Transfer<br/>
 Copy the files on to a USB stick and attach it to each machine when required.
 
 ### Common Commands (Syntax & Examples)
