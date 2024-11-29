@@ -4,6 +4,7 @@ Implementation of SSH certificates like x509 hierarchy (multi-tier)
 ## Introduction
 The following is to explain, in the simplest way possible, how to implement a multi-tier SSH certificate hierarchy.
 This mini-project is what helped me to understand how certificates and a chain-of-trust works.
+This also shows you the basic steps in setting this up manually, which then can assist in automating the process.
 I hope that this helps others to not only understand PKI fundamentals a bit better, but also improve their overall security.
 This project was completed using headless AntiX core Virtual Machines, but the principles will apply to all distributions. 
 
@@ -14,6 +15,43 @@ This project was completed using headless AntiX core Virtual Machines, but the p
 - Do NOT say 'Yes' to fingerprints unless transferring files (remove the fingerprints setup)
 - Once certificates are setup, deactivate password authentication in the sshd_config
 - Ensure the chain of authority is copied over to the respective servers
+- **Shred** any sensitive files, if applicable, after use
+- Decide on the best way for you to transfer the files securely to each respective server
+
+### File/Certificate/Key Transfer
+During this exercise you will at times need to transfer files to and from certain servers. There are many ways to approach this problem. I will first share with you the easiest solution that avoids having to approve the server fingerprints during an ssh/scp connection
+- Web Server (Private Network)
+I would NOT advise this method to be used in a real life situation, but since the purpose of this exercise is to understand how to set up a multi-tier PKI with SSH Certificates, the easiest way is to have a Web Server like Apache2 in a separate VM and on each server which you purge after you are done transferring files.
+```
+//Install Apache2 on a Debian based server
+sudo apt install apache2
+
+//The best would be to download the certificates onto the CA server needed for the signing
+curl -O 192.168.123.123/certificate-to-sign-cert.pub // Download the file onto the current server into the cwd (current working directory)
+curl -F "file@=./file-to-send" 192.168.123.123/      // Send the file to the webserver
+
+//If you are going to offer a private key for transfer make sure you set the permissions when offering the file and when downloading the file
+chmod 644 private-key // When offering on the web server
+chmod 600 private-key // When key is downloaded onto the server to be used
+
+//IMPORTANT - The following is how to securely remove files from your server
+//The following command 'shred' will overwrite the file(s) in question 20 times and then remove them
+//This is so that no sensitive data can be extracted from the files removed
+//FYI - The 'rm' command does not guarantee that the file removed, cannot be recovered through digital forensics
+shred -n 20 -u file1 file2 file3 file4
+
+//Once you are done with the Apache server on your CA servers, purge from the server
+//The following command is on a Debian based server
+apt purge apache2
+```
+- Web Server (Mutual TLS)
+To practice with a more secure environment, you can setup a Mutual TLS relationship for your Apache2 server. I will probably write another guide on how to do this as this is out-of-scope for the current exercise. But essentially, this means that only the Hosts with an authorized certificate will be able to connect to your Web Server and download or upload the files in question.   
+- SSH/SCP Transfer (Not Advised)
+You can go the traditional route of quickly transferring files with SCP or copying the file contents to your clipboard and then SSHing into the other server and copying over the file contents. The only issue is that defeats the purpose of setting up certificates (avoiding the TOFU issue). This also means to verify that your certificate authentication is working, you will need to remove the fingerprints approved in the 'known_hosts' file.
+- Shared Folder
+Since this exercise uses VMs you can setup a shared network folder between all the VMs as a hub for all the files needed during the process.
+- Physical Transfer
+Copy the files on to a USB stick and attach it to each machine when required.
 
 ### Common Commands (Syntax & Examples)
 *SYNTAX:*
@@ -171,3 +209,7 @@ shutdown now
 10. [x] Go Offline
 
 **Well Done!** You just successfully created a Root CA and established the Anchor of Trust.
+
+#### Sub CA
+
+#### User Certificates
