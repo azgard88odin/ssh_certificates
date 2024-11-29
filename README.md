@@ -25,6 +25,10 @@ I would **NOT** advise this method to be used in a **real life situation**, but 
 ```
 //Install Apache2 on a Debian based server
 sudo apt install apache2
+systemctl start apache2
+
+//Offer files on the server
+cp /path/to/file /var/www/html/
 
 //The best would be to download the certificates onto the CA server needed for the signing
 curl -O 192.168.123.123/certificate-to-sign-cert.pub // Download the file onto the current server into the cwd (current working directory)
