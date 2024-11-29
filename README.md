@@ -107,6 +107,7 @@ The following will show the steps that need to taken in order for the chain of t
 --
 
 ### Certificate Authorities
+#### Root CA
 1. Generate 4096-bit RSA Key Pair as the root user. You can create these in the **/root/.ssh** directory. 
 - Creates: root-ca-key(privatekey) & root-ca-key.pub(publickey)
 ```
