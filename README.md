@@ -215,5 +215,33 @@ shutdown now
 **Well Done!** You just successfully created a Root CA and established the Anchor of Trust.
 
 #### Sub CA
+1. Generate Sub CA Key Pair
+```
+ssh-keygen -t rsa -b 4096 -f ./sub-ca-key -N ''
+```
+1. [x] Generate Key Pair
 
+2. Get Sub CA signed certificate by giving the
+```
+//Use whatever method described earlier in this text to get the signed certificate with the following command
+ssh-keygen -s root-ca-key -I ssh-sub-ca -h -n ssh-sub-ca.example.com -V +30w sub-ca-key.pub
+
+//REMEMBER, IF you have the private key on the Sub CA system, use the 'shred' command to securely remove the private key
+shred -n 20 -u root-ca-key
+```
+2. [x] Get Root CA to create a signed Sub CA Certificate
+
+3-5. Copy the key files and certificate to the /etc/ssh directory and add the following to the sshd_config file
+```
+echo "HostKey /etc/ssh/sub-ca-key" >> /etc/ssh/sshd_config
+echo "HostCertificate /etc/ssh/sub-ca-key-cert.pub" >> /etc/ssh/sshd_config
+echo "TrustedUserCAKeys /etc/ssh/sub-ca-key.pub" >> /etc/ssh/sshd_config
+```
+3. [x] Establish Sub CA Private Key as the HostKey
+4. [x] Establish Sub CA Certificate as the HostCertificate
+5. [x] Trust User Certificates Signed by Sub CA
+
+6. In this step we must add both the public key of the Sub CA as a 'cert-authority' but also append the principal to the Root CA public key. For the Root CA public key, the principals should be: 'ssh-root-ca.example.com,ssh-sub-ca.example.com'. This is because the Root CA signed the Sub CA's certificate and this denotes its authority.
+
+6. [x] Append the Chain of Authority
 #### User Certificates
