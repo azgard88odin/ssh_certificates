@@ -1,4 +1,4 @@
-# ssh_certificates
+# SSH Certificates - Setting Up a Multi-Tier Hierarchy
 Implementation of SSH certificates like x509 hierarchy (multi-tier)
 
 ## Introduction
