@@ -21,7 +21,7 @@ This project was completed using headless AntiX core Virtual Machines, but the p
 ### File/Certificate/Key Transfer
 During this exercise you will at times need to transfer files to and from certain servers. There are many ways to approach this problem. I will first share with you the easiest solution that avoids having to approve the server fingerprints during an ssh/scp connection
 - Web Server (Private Network)
-I would NOT advise this method to be used in a real life situation, but since the purpose of this exercise is to understand how to set up a multi-tier PKI with SSH Certificates, the easiest way is to have a Web Server like Apache2 in a separate VM and on each server which you purge after you are done transferring files.
+I would **NOT** advise this method to be used in a **real life situation**, but since the purpose of this exercise is to understand how to set up a multi-tier PKI with SSH Certificates, the easiest way is to have a Web Server like Apache2 in a separate VM and on each server which you purge after you are done transferring files.
 ```
 //Install Apache2 on a Debian based server
 sudo apt install apache2
