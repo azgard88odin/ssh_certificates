@@ -1,6 +1,8 @@
 # SSH Certificates - Setting Up a Multi-Tier Hierarchy
 Implementation of SSH certificates like x509 hierarchy (multi-tier)
 
+## Table of Contents
+
 ## Introduction
 The following is to explain, in the simplest way possible, how to implement a multi-tier SSH certificate hierarchy.
 This mini-project is what helped me to understand how certificates and a chain-of-trust works.
@@ -11,6 +13,7 @@ This project was completed using headless AntiX core Virtual Machines, but the p
 
 ## Important Information
 - Ensure ssh is installed on your server.
+- Add the relevant hostnames to the /etc/hostname file on each VM - example: ssh-root-ca || ssh-sub-ca || ...
 - Do NOT add public keys to the authorized_keys file (this will force Public Key Authentication instead of certificates)
 - Do NOT say 'Yes' to fingerprints unless transferring files (remove the fingerprints setup)
 - Once certificates are setup, deactivate password authentication in the sshd_config
@@ -242,6 +245,122 @@ echo "TrustedUserCAKeys /etc/ssh/sub-ca-key.pub" >> /etc/ssh/sshd_config
 5. [x] Trust User Certificates Signed by Sub CA
 
 6. In this step we must add both the public key of the Sub CA as a 'cert-authority' but also append the principal to the Root CA public key. For the Root CA public key, the principals should be: 'ssh-root-ca.example.com,ssh-sub-ca.example.com'. This is because the Root CA signed the Sub CA's certificate and this denotes its authority.
-
+```
+//After the appending of the root public key
+//The following command adds the Sub CA public key to the ssh_known_hosts as a Certificate Authority
+echo -n "@cert-authority ssh-sub-ca@example.com " >> ssh_known_hosts && cat sub-ca-key.pub >> ssh_known_hosts
+```
 6. [x] Append the Chain of Authority
+
+7. To verify the in our current virtual environment, we must edit the /etc/hosts file to make sure we are connecting to a 'host' server and not just an IP address.
+```
+//Get the current machine's private IP address
+hostname -I
+
+//Replace 192.168.123.123 with the correct IP address of the Sub CA server.
+echo "192.168.123.123  ssh-sub-ca.example.com" >> /etc/hosts
+```
+7. [x] Edit /etc/hosts
+
+8. Connect to the Sub CA server to verify that the host is trusted
+```
+//This command at this point, should not request a fingerprint approval and go straight to requesting the password
+//This means that the host is trusted
+ssh root@ssh-sub-ca.example.com
+```
+8. [x] Verify the Trust
+
+9. After obtaining the user public key, sign it with the Sub CA private key to create the User Certificate
+```
+//The -I is using an email address in this example, but you can use any identifier you wish
+//The -h will not be used to create a user certificate as it is not a host
+//The -n will denote the user that the certificate can login as
+//Please note, the following authorizes a 'std_usr' account, this means that there will have to be a std_user account on the server 
+ssh-keygen -s sub-ca-key -I user_email@example.com -n std_usr -V +10w user-key.pub
+
+//Alternatively, you can authorize the certificate to login as root
+ssh-keygen -s sub-ca-key -I user_email@example.com -n root -V +10w user-key.pub
+```
+9. [x] Sign User Certificate
+
+10.
+```
+//Using secure copy to the User machine - You will have to clean out the fingerprint from the known_hosts file after the transfer
+scp user-key-cert.pub ssh_known_hosts 192.168.123.123:/shared_folder/
+
+//If you didn't scp the files from the Sub CA to the User machine, you can download them with curl - as described earlier in this document
+curl -O 192.168.123.123/user-key-cert.pub
+
+//Send the files via curl - as described earlier in this document
+curl -F "file=@./sub-ca-key-cert.pub" -F "file=@./ssh_known_hosts" 192.168.123.123
+```
+10. [x] Pass on the chain of authority
+
 #### User Certificates
+
+**Well Done! You are almost there!**
+
+1. Generate the user key pairs as in previous steps
+```
+ssh-keygen -t rsa -b 4096 -f ./user-key
+```
+1. [x] Generate Key Pair
+
+2. Get the user public key signed
+```
+//Use whatever method described earlier in this text to get the signed certificate with the following command
+//Please note, the following authorizes a 'std_usr' account, this means that there will have to be a std_user account on the server 
+ssh-keygen -s sub-ca-key -I user_email@example.com -n std_usr -V +10w user-key.pub
+
+//Alternatively, you can authorize the certificate to login as root
+ssh-keygen -s sub-ca-key -I user_email@example.com -n root -V +10w user-key.pub
+
+//REMEMBER, IF you have the private key on the User system, use the 'shred' command to securely remove the private key
+shred -n 20 -u sub-ca-key
+```
+2. [x] Get Sub CA to create a signed User Certificate
+
+3. Copy over the ssh_known_hosts file into the /etc/ssh/ directory on the user machine (must have sudo or root access)
+```
+//If the updated ssh_known_hosts is on your system
+mv ssh_known_hosts /etc/ssh/
+
+//If there is already information in the User machine's /etc/ssh/ssh_known_hosts file
+cat ssh_known_hosts >> /etc/ssh/ssh_known_hosts
+```
+3. [x] Copy over the chain of authority
+
+4. In the user (the one authorized in the certificate), add the following to the ./config file
+```
+//If you authorized std_user
+Host myserveridentity
+  Hostname ssh-sub-ca@example.com
+  User std_user
+  IdentityFile /home/std_user/.ssh/user-key
+  CertificateFile /home/std_user/.ssh/user-key-cert.pub
+
+//If you authorized root
+Host myserveridentity
+  Hostname ssh-sub-ca@example.com
+  User root
+  IdentityFile /root/.ssh/user-key
+  CertificateFile /root/.ssh/user-key-cert.pub
+```
+4. [x] Create user connection config
+
+5. As before, we must add the 'host' to the hosts file so that we don't connect to a plain IP address
+```
+echo "192.168.123.123 ssh-sub.ca.example.com" >> /etc/hosts
+```
+5. [x] Edit /etc/hosts
+
+6. Test the connection with the following command. The connection should login immediately without any password or fingerprint requests
+```
+//SSH into the server with the identity denoted in the config file
+ssh myserveridentity
+
+//You should see one of the following prompts
+std_user@ssh-sub-ca
+root@ssh-sub-ca
+```
+6. Test the connection to the server
