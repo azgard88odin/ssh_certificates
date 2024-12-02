@@ -363,4 +363,6 @@ ssh myserveridentity
 std_user@ssh-sub-ca
 root@ssh-sub-ca
 ```
-6. Test the connection to the server
+6. [x] Test the connection to the server
+
+## Table Diagram
