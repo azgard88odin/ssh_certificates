@@ -2,6 +2,19 @@
 Implementation of SSH certificates like x509 hierarchy (multi-tier)
 
 ## Table of Contents
+- [Introduction](#introduction)
+- [Important Information](#important-information)
+  - [File/Certificate/Key Transfer](#filecertificatekey-transfer)
+  - [Common Commands](#common-commands-syntax--examples)
+  - [Important Configurations](#important-configurations)
+- [Overview](#overview)
+- [Certificate Authorities](#certificate-authorities)
+  - [Root CA](#root-ca)
+  - [Sub CA](#sub-ca)
+  - [User Certificates](#user-certificates)
+- [Visual Guide to SSH Certificate Hierarchy](#visual-guide-to-ssh-certificate-hierarchy)
+- [Troubleshooting](#troubleshooting)
+- [Additional Resources](#additional-resources)
 
 ## Introduction
 The following is to explain, in the simplest way possible, how to implement a multi-tier SSH certificate hierarchy.
@@ -365,4 +378,71 @@ root@ssh-sub-ca
 ```
 6. [x] Test the connection to the server
 
-## Table Diagram
+## Visual Guide to SSH Certificate Hierarchy
+
+```
+┌─────────────────────┐
+│                     │
+│      Root CA        │ ← The ultimate source of trust, usually kept offline
+│                     │   Creates self-signed certificate
+└──────────┬──────────┘
+           │ Signs
+           ▼
+┌─────────────────────┐
+│                     │
+│      Sub CA         │ ← The issuing authority that remains online
+│                     │   Signs user certificates
+└──────────┬──────────┘
+           │ Signs
+           ▼
+┌─────────────────────┐
+│                     │
+│  User Certificate   │ ← Used by users to authenticate to servers
+│                     │
+└─────────────────────┘
+
+Flow of Trust:
+1. Root CA establishes the anchor of trust
+2. Root CA signs Sub CA certificates
+3. Sub CA signs user certificates
+4. Servers trust Root CA and/or Sub CA
+5. Users present their certificates to authenticate
+```
+
+### Key Files and Their Roles
+
+| File Type | Purpose | Location | Example |
+|-----------|---------|----------|---------|
+| Private Key | Decrypts data, signs certificates | Secure server location | `root-ca-key`, `sub-ca-key` |
+| Public Key | Encrypts data, verifies signatures | Shared openly | `root-ca-key.pub`, `sub-ca-key.pub` |
+| Certificate | Signed public key with identity info | Used for authentication | `root-ca-key-cert.pub`, `user-key-cert.pub` |
+| Known Hosts | Lists trusted certificate authorities | `/etc/ssh/ssh_known_hosts` | `@cert-authority hostname.example.com ssh-rsa...` |
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+1. **Certificate not recognized**
+   - Check that the hostname matches exactly what's in the certificate
+   - Verify the certificate hasn't expired with `ssh-keygen -Lf cert.pub`
+   - Ensure the CA's public key is properly listed in `ssh_known_hosts`
+
+2. **Permission errors**
+   - Private keys must have `chmod 600` permissions
+   - Certificate files should have `chmod 644` permissions
+
+3. **Still asking for password**
+   - Check that `PasswordAuthentication no` is set in `/etc/ssh/sshd_config`
+   - Verify that user is included in the certificate's principals
+
+4. **Host verification failed**
+   - Make sure the hostname matches what's in `/etc/hosts` and the certificate
+   - Check that the CA's public key is present in `ssh_known_hosts`
+
+## Additional Resources
+
+- [OpenSSH Certificates Documentation](https://man.openbsd.org/ssh-keygen.1#CERTIFICATES)
+- [SSH Academy: Certificate-based Authentication](https://www.ssh.com/academy/ssh/certificate-based-authentication)
+- [Digital Ocean: How to Create an SSH CA](https://www.digitalocean.com/community/tutorials/how-to-create-an-ssh-ca-to-validate-hosts-and-clients-with-ubuntu)
+
+Happy secure connecting!
